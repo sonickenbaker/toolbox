@@ -1,34 +1,49 @@
 #!/bin/bash
 
+DOWNLOAD_FOLDER="/tmp/provision"
 INSTALL_FOLDER="/usr/local/bin"
 
-# Download and install kubectl
+# setup
+mkdir "$DOWNLOAD_FOLDER"
+
+# Kubectl
 KUBECTL_LATEST_STABLE_VERSION=$(curl -L -s https://dl.k8s.io/release/stable.txt)
 KUBECTL_VERSION=${1:-$KUBECTL_LATEST_STABLE_VERSION}
+KUBECTL_URL="https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
+KUBECTL_BIN="$DOWNLOAD_FOLDER/kubectl"
+echo "===> Installing kubectl"
+curl -L -o "$KUBECTL_BIN" "$KUBECTL_URL"
+sudo install -o root -g root -m 0755 "$KUBECTL_BIN" "$INSTALL_FOLDER/kubectl"
 
-echo "===> Downloading Kubectl from: https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
-curl -LO "https://dl.k8s.io/release/$KUBECTL_VERSION/bin/linux/amd64/kubectl"
-sudo install -o root -g root -m 0755 kubectl "$INSTALL_FOLDER/kubectl"
 
+# Helm
+HELM_SCRIPT="$DOWNLOAD_FOLDER/get_helm.sh"
+HELM_URL="https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3"
+echo "===> Installing Helm"
+curl -fsSL -o "$HELM_SCRIPT" "$HELM_URL"
+chmod 700 "$HELM_SCRIPT"
+"$HELM_SCRIPT"
+#rm "$HELM_SCRIPT"
 
-# Download and install Helm
-curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-chmod 700 get_helm.sh
-./get_helm.sh
-rm ./get_helm.sh
+# K9s
+K9S_DIR="$DOWNLOAD_FOLDER/k9s"
+K9S_URL="https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_x86_64.tar.gz"
+echo "===> Installing k9s"
+mkdir "$K9S_DIR"
+wget -P "$K9S_DIR/" "$K9S_URL"
+tar -xvf "$K9S_DIR/k9s_Linux_x86_64.tar.gz" -C "$K9S_DIR"
+sudo install -o root -g root -m 0755 "$K9S_DIR/k9s" "$INSTALL_FOLDER/"
 
-# Download and install K9s
-wget https://github.com/derailed/k9s/releases/download/v0.25.21/k9s_Linux_x86_64.tar.gz
-mkdir ./k9s
-tar -xvf k9s_Linux_x86_64.tar.gz -C ./k9s
-sudo mv ./k9s/k9s "$INSTALL_FOLDER/"
-rm -rf ./k9s k9s_Linux_x86_64.tar.gz
-
-# Download and install istioctl
+# istioctl
 export ISTIO_VERSION="1.14.1"
 export TARGET_ARCH="x86_64"
-
-curl -LO https://istio.io/downloadIstio
-chmod +x downloadIstio
-./downloadIstio
-sudo mv "./istio-$ISTIO_VERSION/bin/istioctl" "$INSTALL_FOLDER/"
+ISTIO_DOWNLOAD="$DOWNLOAD_FOLDER/downloadIstio"
+ISTIO_URL="https://istio.io/downloadIstio"
+echo "===> Installing istioctl"
+curl -L -o "$ISTIO_DOWNLOAD" "$ISTIO_URL"
+chmod +x "$ISTIO_DOWNLOAD"
+pushd "$(pwd)" || exit
+cd "$DOWNLOAD_FOLDER" || exit
+./"$ISTIO_DOWNLOAD"
+popd || exit
+sudo install -o root -g root -m 0755 "$DOWNLOAD_FOLDER/istio-$ISTIO_VERSION/bin/istioctl" "$INSTALL_FOLDER/"
