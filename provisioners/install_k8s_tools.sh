@@ -27,7 +27,7 @@ chmod 700 "$HELM_SCRIPT"
 
 # K9s
 K9S_DIR="$DOWNLOAD_FOLDER/k9s"
-K9S_URL="https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_x86_64.tar.gz"
+K9S_URL="https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_amd64.tar.gz"
 echo "===> Installing k9s"
 mkdir "$K9S_DIR"
 wget -P "$K9S_DIR/" "$K9S_URL"
