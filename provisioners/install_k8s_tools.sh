@@ -31,7 +31,7 @@ K9S_URL="https://github.com/derailed/k9s/releases/latest/download/k9s_Linux_x86_
 echo "===> Installing k9s"
 mkdir "$K9S_DIR"
 wget -P "$K9S_DIR/" "$K9S_URL"
-tar -xvf "$K9S_DIR/k9s_Linux_x86_64.tar.gz" -C "$K9S_DIR"
+tar -xvf "$K9S_DIR/k9s_Linux_amd64.tar.gz" -C "$K9S_DIR"
 sudo install -o root -g root -m 0755 "$K9S_DIR/k9s" "$INSTALL_FOLDER/"
 
 # istioctl
@@ -44,6 +44,6 @@ curl -L -o "$ISTIO_DOWNLOAD" "$ISTIO_URL"
 chmod +x "$ISTIO_DOWNLOAD"
 pushd "$(pwd)" || exit
 cd "$DOWNLOAD_FOLDER" || exit
-./"$ISTIO_DOWNLOAD"
+"$ISTIO_DOWNLOAD"
 popd || exit
 sudo install -o root -g root -m 0755 "$DOWNLOAD_FOLDER/istio-$ISTIO_VERSION/bin/istioctl" "$INSTALL_FOLDER/"
